@@ -3,11 +3,13 @@ const React = require('react');
 const Box = require('../box/box.jsx');
 const Waveform = require('../waveform/waveform.jsx');
 const Meter = require('../meter/meter.jsx');
+const Trimmer = require('./trimmer.jsx');
 
 const styles = require('./record-modal.css');
 const backIcon = require('./icon--back.svg');
 const stopIcon = require('./icon--stop-playback.svg');
 const playIcon = require('./icon--play.svg');
+const trimIcon = require('./icon--trim.svg');
 
 const PlaybackStep = props => (
     <Box>
@@ -25,7 +27,13 @@ const PlaybackStep = props => (
                     data={props.levels}
                     height={150}
                     level={0}
-                    width={440}
+                    width={480}
+                />
+                <Trimmer
+                    trimEnd={props.trimEnd}
+                    trimStart={props.trimStart}
+                    onTrimEndMouseDown={props.onTrimEndMouseDown}
+                    onTrimStartMouseDown={props.onTrimStartMouseDown}
                 />
             </Box>
         </Box>
@@ -54,7 +62,7 @@ const PlaybackStep = props => (
                 disabled={props.encoding}
                 onClick={props.onSubmit}
             >
-                {props.encoding ? 'Loading...' : 'OK'}
+                <img src={trimIcon} /> {props.encoding ? 'Loading...' : 'Trim'}
             </button>
         </Box>
     </Box>
@@ -67,7 +75,11 @@ PlaybackStep.propTypes = {
     onPlay: PropTypes.func.isRequired,
     onStopPlaying: PropTypes.func.isRequired,
     onSubmit: PropTypes.func.isRequired,
-    playing: PropTypes.bool.isRequired
+    onTrimEndMouseDown: PropTypes.func.isRequired,
+    onTrimStartMouseDown: PropTypes.func.isRequired,
+    playing: PropTypes.bool.isRequired,
+    trimEnd: PropTypes.number.isRequired,
+    trimStart: PropTypes.number.isRequired
 };
 
 module.exports = PlaybackStep;

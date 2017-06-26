@@ -9,7 +9,13 @@ class PlaybackStep extends React.Component {
         super(props);
         bindAll(this, [
             'handlePlay',
-            'handleStopPlaying'
+            'handleStopPlaying',
+            'handleTrimStartMouseDown',
+            'handleTrimEndMouseDown',
+            'handleTrimStartMouseMove',
+            'handleTrimEndMouseMove',
+            'handleTrimStartMouseUp',
+            'handleTrimEndMouseUp'
         ]);
     }
     componentDidMount () {
@@ -19,12 +25,42 @@ class PlaybackStep extends React.Component {
         this.audioBufferPlayer.stop();
     }
     handlePlay () {
-        this.audioBufferPlayer.play(this.props.onStopPlaying);
+        this.audioBufferPlayer.play(this.props.trimStart, this.props.trimEnd, this.props.onStopPlaying);
         this.props.onPlay();
     }
     handleStopPlaying () {
         this.audioBufferPlayer.stop();
         this.props.onStopPlaying();
+    }
+    handleTrimStartMouseMove (e) {
+        const dx = 100 * (e.clientX - this.initialX) / 480;
+        const newTrim = Math.min(this.props.trimEnd, this.initialTrim + dx);
+        this.props.onSetTrimStart(newTrim);
+    }
+    handleTrimEndMouseMove (e) {
+        const dx = 100 * (e.clientX - this.initialX) / 480;
+        const newTrim = Math.max(this.props.trimStart, this.initialTrim + dx);
+        this.props.onSetTrimEnd(newTrim);
+    }
+    handleTrimStartMouseUp () {
+        window.removeEventListener('mousemove', this.handleTrimStartMouseMove);
+        window.removeEventListener('mouseup', this.handleTrimStartMouseUp);
+    }
+    handleTrimEndMouseUp () {
+        window.removeEventListener('mousemove', this.handleTrimEndMouseMove);
+        window.removeEventListener('mouseup', this.handleTrimEndMouseUp);
+    }
+    handleTrimStartMouseDown (e) {
+        this.initialX = e.clientX;
+        this.initialTrim = this.props.trimStart;
+        window.addEventListener('mousemove', this.handleTrimStartMouseMove);
+        window.addEventListener('mouseup', this.handleTrimStartMouseUp);
+    }
+    handleTrimEndMouseDown (e) {
+        this.initialX = e.clientX;
+        this.initialTrim = this.props.trimEnd;
+        window.addEventListener('mousemove', this.handleTrimEndMouseMove);
+        window.addEventListener('mouseup', this.handleTrimEndMouseUp);
     }
     render () {
         const {
@@ -36,6 +72,8 @@ class PlaybackStep extends React.Component {
             <PlaybackStepComponent
                 onPlay={this.handlePlay}
                 onStopPlaying={this.handleStopPlaying}
+                onTrimEndMouseDown={this.handleTrimEndMouseDown}
+                onTrimStartMouseDown={this.handleTrimStartMouseDown}
                 {...componentProps}
             />
         );
